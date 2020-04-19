@@ -6,8 +6,8 @@ const dotenv = require('dotenv').config();
         headless: false,
     });
 
-    const userEmail = 'collet.andrea@gmail.com';
-    const userPassword = ',Accatas74accatastA,';
+    const userEmail = process.env.USEREMAIL;
+    const userPassword = process.env.USERPASSWORD;
 
     const login = async function () {
         const loginInputFkey = await loginForm.$('input[name="fkey"]')[0];
@@ -21,7 +21,7 @@ const dotenv = require('dotenv').config();
             loginSubmit.click(),
             page.waitForNavigation({waitUntil: 'networkidle2'})
         ]).then((response) => {
-            console.log('Wverything went well');
+            console.log('Everything went well');
         }).catch((reason) => {
             throw 'There was an error', reason;
         });
