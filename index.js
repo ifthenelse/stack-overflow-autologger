@@ -1,4 +1,5 @@
 const puppeteer = require('puppeteer');
+const dotenv = require('dotenv').config();
 
 (async () => {
     const browser = await puppeteer.launch({

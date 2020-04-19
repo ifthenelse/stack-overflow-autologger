@@ -1,15 +1,18 @@
 {
-  "name": "puppeteer-stackoverflow",
+  "name": "stackoverflow-autologger",
   "version": "1.0.0",
-  "description": "",
+  "description": "Log to StackOverflow to get badges. Best used as scheduled task.",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "author": "Andrea Collet<info@andreacollet.it>",
   "license": "ISC",
   "dependencies": {
     "puppeteer": "^3.0.0"
+  },
+  "devDependencies": {
+    "dotenv": "^8.2.0"
   }
 }
