@@ -1,6 +1,6 @@
 # stackoverflow-autologger
 
-Log automatically to StackOverflow to get badges.
+Log to StackOverflow to get badges. Best used as scheduled task.
 
 ```shell script
 npm install
