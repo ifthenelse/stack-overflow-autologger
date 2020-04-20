@@ -3,7 +3,7 @@ const dotenv = require('dotenv').config();
 
 (async () => {
     const browser = await puppeteer.launch({
-        headless: false,
+        headless: process.env.HEADLESS,
     });
 
     const userEmail = process.env.USEREMAIL;
