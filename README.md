@@ -2,7 +2,7 @@
 
 Log to StackOverflow to get badges. Best used as scheduled task.
 
-## COnfiguration and installation
+## Configuration and installation
 
 1. Add your StackExchange or StackOverflow credentials to the .env file
 
