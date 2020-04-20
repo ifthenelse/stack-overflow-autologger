@@ -4,6 +4,7 @@ const dotenv = require('dotenv').config();
 (async () => {
     const browser = await puppeteer.launch({
         headless: process.env.HEADLESS,
+        executablePath: process.env.PUPPETEER_EXECUTABLE_PATH
     });
 
     const userEmail = process.env.USEREMAIL;
