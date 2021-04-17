@@ -1,11 +1,13 @@
 const puppeteer = require('puppeteer-core');
 const dotenv = require('dotenv').config();
 
-const initBrowser = (async () => {
-    const browser = await puppeteer.launch({
-        headless: process.env.HEADLESS,
-        executablePath: process.env.PUPPETEER_EXECUTABLE_PATH
-    });
+const initPuppeteer = async () => puppeteer.launch({
+    headless: process.env.HEADLESS,
+    executablePath: process.env.PUPPETEER_EXECUTABLE_PATH
+});
+
+const initBrowser = () => (async () => {
+    const browser = await initPuppeteer();
     
     const userEmail = process.env.USEREMAIL;
     const userPassword = process.env.USERPASSWORD;
