@@ -3,8 +3,9 @@
   "version": "1.0.0",
   "description": "Log to StackOverflow to get badges. Best used as scheduled task.",
   "main": "index.js",
+  "type": "module",
   "scripts": {
-    "start": "node index.js",
+    "start": "node --experimental-modules -r dotenv/config index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Andrea Collet<info@andreacollet.it>",

@@ -1,5 +1,4 @@
-const puppeteer = require('puppeteer-core');
-const dotenv = require('dotenv').config();
+import puppeteer from 'puppeteer-core';
 
 const initPuppeteer = async () => puppeteer.launch({
     headless: process.env.HEADLESS,
