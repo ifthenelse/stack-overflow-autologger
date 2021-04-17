@@ -1,15 +1,15 @@
 const puppeteer = require('puppeteer-core');
 const dotenv = require('dotenv').config();
 
-(async () => {
+const initBrowser = (async () => {
     const browser = await puppeteer.launch({
         headless: process.env.HEADLESS,
         executablePath: process.env.PUPPETEER_EXECUTABLE_PATH
     });
-
+    
     const userEmail = process.env.USEREMAIL;
     const userPassword = process.env.USERPASSWORD;
-
+    
     const login = async function () {
         const loginInputFkey = await loginForm.$('input[name="fkey"]')[0];
         const loginInputSsrc = await loginForm.$('input[name="ssrc"]')[0];
@@ -27,24 +27,24 @@ const dotenv = require('dotenv').config();
             throw 'There was an error', reason;
         });
     }
-
+    
     const gotoLogin = async function () {
         await login();
     }
-
+    
     // Load StackOverflow page
     const page = await browser.newPage();
     await page.setViewport({width: 1440, height: 900});
     await page.goto('https://stackoverflow.com/users/login?ssrc=head&returnurl=https%3a%2f%2fstackoverflow.com%2f');
-
+    
     // Check if page has been loaded correctly
     if (!page) {
         throw ('Page not loaded because error');
     }
-
+    
     console.log('Page loaded correctly');
     const loginForm = await page.$('#login-form');
-
+    
     // Check if login form can be found
     if (loginForm) {
         console.log('Login form found');
@@ -53,6 +53,8 @@ const dotenv = require('dotenv').config();
         console.log('Login form not found. Logging in manually.')
         await gotoLogin();
     }
-
+    
     await browser.close();
 })();
+
+initBrowser();
