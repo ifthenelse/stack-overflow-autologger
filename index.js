@@ -2,7 +2,7 @@ import puppeteer from 'puppeteer-core';
 import {
     initSession
 
-let browser;
+let browser, page;
 
 const initBrowser = async () => {
     browser = await initSession();
@@ -33,7 +33,7 @@ const initBrowser = async () => {
     }
     
     // Load StackOverflow page
-    const page = await browser.newPage();
+    page = await browser.newPage();
     await page.setViewport({width: 1440, height: 900});
     await page.goto('https://stackoverflow.com/users/login?ssrc=head&returnurl=https%3a%2f%2fstackoverflow.com%2f');
     
