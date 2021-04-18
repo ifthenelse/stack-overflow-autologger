@@ -1,12 +1,11 @@
 import puppeteer from 'puppeteer-core';
+import {
+    initSession
 
-const initPuppeteer = async () => puppeteer.launch({
-    headless: process.env.HEADLESS,
-    executablePath: process.env.PUPPETEER_EXECUTABLE_PATH
-});
+let browser;
 
-const initBrowser = () => (async () => {
-    const browser = await initPuppeteer();
+const initBrowser = async () => {
+    browser = await initSession();
     
     const userEmail = process.env.USEREMAIL;
     const userPassword = process.env.USERPASSWORD;
@@ -56,6 +55,6 @@ const initBrowser = () => (async () => {
     }
     
     await browser.close();
-})();
+};
 
 initBrowser();
