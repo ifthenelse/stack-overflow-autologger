@@ -1,18 +1,22 @@
 import puppeteer from 'puppeteer-core';
 import {
     initSession,
-    login
+    login,
+    visitPage
 } from './src/index.js';
 
 let browser, page;
 
 const initBrowser = async () => {
+    // Create browser session
     browser = await initSession();
     
-    // Load StackOverflow page
+    // Create page
     page = await browser.newPage();
     await page.setViewport({width: 1440, height: 900});
-    await page.goto('https://stackoverflow.com/users/login?ssrc=head&returnurl=https%3a%2f%2fstackoverflow.com%2f');
+
+    // Visit StackExchange login
+    await visitPage(page, 'https://stackoverflow.com/users/login?ssrc=head&returnurl=https%3a%2f%2fstackoverflow.com%2f');
     
     // Check if page has been loaded correctly
     if (!page) {
