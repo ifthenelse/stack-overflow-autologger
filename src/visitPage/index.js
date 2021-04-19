@@ -1,10 +1,11 @@
 import puppeteer from 'puppeteer-core';
 
-const visitPage = async (page, url) => {
+const visitPage = async (page, url, timeout = process.env.timeout) => {
     try {
-        page.goto(url, {
-            timeout: 0
-        })
+        await page.goto(url, {
+            timeout: timeout
+        });
+        return page;
     }
     catch(err) {
         throw `Error while loading the ${url}: `, err.message
