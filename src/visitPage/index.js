@@ -5,6 +5,7 @@ const visitPage = async (page, url, timeout = process.env.timeout) => {
         await page.goto(url, {
             timeout: timeout
         });
+        page.waitForNavigation();
         return page;
     }
     catch(err) {
