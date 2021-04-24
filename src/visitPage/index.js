@@ -8,7 +8,7 @@ const visitPage = async (page, url, timeout = process.env.timeout) => {
         page.waitForNavigation();
         return page;
     }
-    catch(err) {
+    catch (err) {
         throw `Error while loading the ${url}: `, err.message
     }
 }

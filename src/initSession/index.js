@@ -22,7 +22,7 @@ const initSession = async (props = {}) => {
             timeout: props.timeout
         });
     }
-    catch(err) {
+    catch (err) {
         throw 'Error initializing Puppeteer session: ', err.message
     }
 }
