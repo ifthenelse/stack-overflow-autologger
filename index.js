@@ -1,8 +1,10 @@
 import puppeteer from 'puppeteer-core';
+import UserAgent from 'user-agents';
 import {
     initSession,
     login,
-    visitPage
+    visitPage,
+    getCommunitiesList
 } from './src/index.js';
 
 let browser, page;
@@ -13,6 +15,10 @@ const initBrowser = async () => {
 
     // Create page
     page = await browser.newPage();
+
+    const ua = new UserAgent();
+    page.setUserAgent(ua.data.toString());
+    console.log('Generated User Agent: ', ua.toString());
 
     // Visit StackExchange login page
     await visitPage(page, process.env.STACKEXCHANGE_LOGIN);
