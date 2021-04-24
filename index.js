@@ -7,7 +7,7 @@ import {
     getCommunitiesList
 } from './src/index.js';
 
-let browser, page;
+let browser, page, communities;
 
 const initBrowser = async () => {
     // Create browser session
@@ -22,14 +22,15 @@ const initBrowser = async () => {
 
     // Visit StackExchange login page
     await visitPage(page, process.env.STACKEXCHANGE_LOGIN);
-    
+
     // Enter login credentials
     await login(page);
 
     // Go to StackExchange sites
-    await visitPage(page, process.env.STACKEXCHANGE_SITES);
-    
+    communities = await getCommunitiesList(page);
+
     await browser.close();
+    console.log('----');
 };
 
 initBrowser();
