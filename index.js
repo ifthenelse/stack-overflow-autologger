@@ -21,6 +21,7 @@ const initBrowser = async () => {
 
     const ua = new UserAgent();
     page.setUserAgent(ua.data.toString());
+    page.setDefaultNavigationTimeout(process.env.TIMEOUT);
     console.log('Generated User Agent: ', ua.toString());
 
     // Visit StackExchange login page
