@@ -33,7 +33,14 @@ const initBrowser = async () => {
     // Go to StackExchange sites
     communities = await getCommunitiesList(page);
 
-    await browser.close();
+    if (!communities?.length) {
+        await browser.close();
+
+        d = new Date();
+        console.log(`${d.toISOString()} Finish`);
+        console.log('----');
+    }
+
     console.log(`Got ${communities.length} communities`);
 
     // go to each Community user's profile page
