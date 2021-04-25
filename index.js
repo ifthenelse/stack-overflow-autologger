@@ -4,10 +4,11 @@ import {
     initSession,
     login,
     visitPage,
-    getCommunitiesList
+    getCommunitiesList,
+    scrapeCommunity
 } from './src/index.js';
 
-let browser, page, communities;
+let d, browser, page, communities;
 
 const initBrowser = async () => {
     // Create browser session
@@ -28,6 +29,16 @@ const initBrowser = async () => {
 
     // Go to StackExchange sites
     communities = await getCommunitiesList(page);
+
+    await browser.close();
+    console.log(`Got ${communities.length} communities`);
+
+    // go to each Community user's profile page
+    for (let i = 0; i < communities.length; i++) {
+        console.log(`${i}. ${communities[i].name}`)
+        await visitPage(page, communities[i].url);
+        await scrapeCommunity(page);
+    }
 
     await browser.close();
     console.log('----');
