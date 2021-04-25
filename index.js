@@ -11,6 +11,8 @@ import {
 let d, browser, page, communities;
 
 const initBrowser = async () => {
+    d = new Date();
+    console.log(`${d.toISOString()} Start`);
     // Create browser session
     browser = await initSession();
 
@@ -41,6 +43,9 @@ const initBrowser = async () => {
     }
 
     await browser.close();
+
+    d = new Date();
+    console.log(`${d.toISOString()} Finish`);
     console.log('----');
 };
 
