@@ -25,8 +25,8 @@ const login = async (page, props = {}) => {
             page.waitForNavigation({ waitUntil: 'networkidle2' })
         ]);
 
-        if (page.$(nocaptchaSelector).length) {
-            throw 'Stackexchange asks for bot verification - please start another session'
+        if (await page.$(nocaptchaSelector) !== null) {
+            throw 'StackExchange asks for bot verification - closing session'
         }
         console.log('Successfully logged in to StackExchange');
     }
