@@ -1,3 +1,5 @@
+import dotEnvExtended from 'dotenv-extended';
+dotEnvExtended.load();
 import puppeteer from 'puppeteer-core';
 
 const defaultProps = {
