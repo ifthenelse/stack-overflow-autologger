@@ -1,4 +1,3 @@
-import puppeteer from 'puppeteer-core';
 import UserAgent from 'user-agents';
 import {
     initSession,

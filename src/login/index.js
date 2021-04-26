@@ -1,5 +1,3 @@
-import puppeteer from 'puppeteer-core';
-
 const defaultProps = {
     userEmail: process.env.USEREMAIL,
     userPassword: process.env.USERPASSWORD,

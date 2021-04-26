@@ -1,6 +1,3 @@
-import puppeteer from 'puppeteer-core';
-import { visitPage } from '../index.js';
-
 const scrapeCommunity = async (page) => {
     try {
         const linkHPSel = '#nav-questions';

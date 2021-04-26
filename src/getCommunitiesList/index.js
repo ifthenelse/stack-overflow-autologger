@@ -1,5 +1,3 @@
-import puppeteer from 'puppeteer-core';
-
 const getCommunitiesList = async (page, timeout = process.env.timeout) => {
     try {
         const linkMenuSel = '.-link.js-site-switcher-button.js-gps-track';
