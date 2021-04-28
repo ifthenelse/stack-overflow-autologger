@@ -11,7 +11,8 @@
   "author": "Andrea Collet<info@andreacollet.it>",
   "license": "ISC",
   "dependencies": {
-    "puppeteer-core": "^8.0.0"
+    "puppeteer-core": "^9.0.0",
+    "puppeteer-extra": "^3.1.18"
   },
   "devDependencies": {
     "dotenv-extended": "^2.9.0",
