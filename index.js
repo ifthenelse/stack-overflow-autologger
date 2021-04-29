@@ -32,7 +32,7 @@ const initBrowser = async () => {
     // Go to StackExchange sites
     communities = await getCommunitiesList(page);
 
-    if (!communities?.length) {
+    if (!(communities && communities.length)) {
         await browser.close();
 
         d = new Date();
