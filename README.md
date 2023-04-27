@@ -1,6 +1,7 @@
-# stackoverflow-autologger
+# stackoverflow-autologger 🥇🥇🥇
 
-Log to StackOverflow to get badges. Best used as scheduled task.
+Script to automatically login to StackOverflow simulating navigation via web.
+Best used as scheduled task, e.g. as with [crontab](https://gist.github.com/simov/cdbebe2d65644279db1323042fcf7624).
 
 ## Configuration and installation
 
