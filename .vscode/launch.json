@@ -1,10 +1,52 @@
 {
+    "version": "0.2.0",
     "configurations": [
         {
-            "command": "npm start",
             "name": "Run npm start",
+            "type": "node-terminal",
             "request": "launch",
-            "type": "node-terminal"
+            "command": "npm start"
+        },
+        {
+            "name": "Debug Application",
+            "type": "node",
+            "request": "launch",
+            "program": "${workspaceFolder}/index.js",
+            "env": {
+                "NODE_OPTIONS": "--experimental-modules"
+            },
+            "console": "integratedTerminal",
+            "skipFiles": [
+                "<node_internals>/**",
+                "**/node_modules/**"
+            ],
+            "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "name": "Debug with Headless=false",
+            "type": "node",
+            "request": "launch",
+            "program": "${workspaceFolder}/index.js",
+            "env": {
+                "NODE_OPTIONS": "--experimental-modules",
+                "HEADLESS": "false"
+            },
+            "console": "integratedTerminal",
+            "skipFiles": [
+                "<node_internals>/**",
+                "**/node_modules/**"
+            ],
+            "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "name": "Attach to Process",
+            "type": "node",
+            "request": "attach",
+            "port": 9229,
+            "skipFiles": [
+                "<node_internals>/**",
+                "**/node_modules/**"
+            ]
         }
     ]
 }
