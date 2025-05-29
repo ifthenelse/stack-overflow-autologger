@@ -1,0 +1,83 @@
+name: Documentation
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "**.md"
+      - "src/**"
+      - "package.json"
+  workflow_dispatch:
+
+jobs:
+  update-docs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate API documentation
+        run: |
+          echo "# API Documentation" > API.md
+          echo "" >> API.md
+          echo "Auto-generated documentation for the Stack Overflow Autologger." >> API.md
+          echo "" >> API.md
+          echo "## Modules" >> API.md
+          echo "" >> API.md
+
+          # Document each module
+          for file in src/*/index.js; do
+            module_name=$(basename $(dirname $file))
+            echo "### $module_name" >> API.md
+            echo "" >> API.md
+            echo "Location: \`$file\`" >> API.md
+            echo "" >> API.md
+            
+            # Extract function signature if it exists
+            if grep -q "const.*=.*async" "$file"; then
+              echo "```javascript" >> API.md
+              grep -E "(const|export).*=.*async.*=>|function.*\(" "$file" | head -1 >> API.md
+              echo "```" >> API.md
+              echo "" >> API.md
+            fi
+          done
+
+      - name: Update package info in README
+        run: |
+          # Update version badge in README if it exists
+          if [ -f README.md ] && [ -f package.json ]; then
+            version=$(node -p "require('./package.json').version")
+            if grep -q "!\[Version\]" README.md; then
+              sed -i "s|!\[Version\](.*)|![Version](https://img.shields.io/badge/version-$version-blue)|" README.md
+            fi
+          fi
+
+      - name: Check for changes
+        id: verify-changed-files
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "changed=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit documentation updates
+        if: steps.verify-changed-files.outputs.changed == 'true'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add .
+          git commit -m "docs: update auto-generated documentation [skip ci]"
+          git push

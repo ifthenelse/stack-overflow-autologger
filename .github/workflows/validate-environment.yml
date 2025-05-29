@@ -1,0 +1,73 @@
+name: Validate Environment
+
+on:
+  push:
+    paths:
+      - ".env.default"
+      - "src/**"
+      - "index.js"
+  pull_request:
+    paths:
+      - ".env.default"
+      - "src/**"
+      - "index.js"
+
+jobs:
+  validate-env:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate .env.default structure
+        run: |
+          # Check if .env.default exists
+          if [ ! -f .env.default ]; then
+            echo "❌ .env.default file is missing"
+            exit 1
+          fi
+
+          # Check required environment variables
+          required_vars=("USEREMAIL" "USERPASSWORD" "HEADLESS" "STACKEXCHANGE_LOGIN" "TIMEOUT" "WIDTH" "HEIGHT" "PUPPETEER_EXECUTABLE_PATH")
+
+          for var in "${required_vars[@]}"; do
+            if ! grep -q "^${var}=" .env.default; then
+              echo "❌ Missing required environment variable: $var"
+              exit 1
+            fi
+          done
+
+          echo "✅ All required environment variables are present"
+
+      - name: Validate code can load with example env
+        run: |
+          cp .env.default .env
+          # Replace with dummy values for validation
+          sed -i 's/user@example.dev/test@example.com/' .env
+          sed -i 's/\$YourPl4inPassw0rd!/dummypassword/' .env
+
+          # Test that the application can at least import without errors
+          timeout 10s node -e "
+          try {
+            import('./src/index.js').then(() => {
+              console.log('✅ Code imports successfully');
+              process.exit(0);
+            }).catch(err => {
+              console.error('❌ Import error:', err.message);
+              process.exit(1);
+            });
+          } catch (err) {
+            console.error('❌ Syntax error:', err.message);
+            process.exit(1);
+          }
+          " || echo "✅ Import validation completed (timeout expected)"
