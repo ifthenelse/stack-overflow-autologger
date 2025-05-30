@@ -7,17 +7,15 @@ on:
       - '**.md'
       - 'src/**'
       - 'package.json'
-    paths-ignore:
-      - 'API.md'
-      - 'CHANGELOG.md'
   workflow_dispatch:
 
 jobs:
   update-docs:
     # Prevent infinite loops - don't run if commit message contains [skip ci] or is from docs update
-    if: "${{ !contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.head_commit.message, 'docs: update auto-generated documentation') }}"
+    if: >-
+      ${{ !contains(github.event.head_commit.message, '[skip ci]') &&
+          !contains(github.event.head_commit.message, 'docs: update auto-generated documentation') }}
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -40,8 +38,11 @@ jobs:
           # Check if there are meaningful changes that warrant documentation update
           has_meaningful_changes=false
 
-          # Check for changes in source files or package.json (excluding package-lock.json)
-          if git diff --name-only HEAD~1 2>/dev/null | grep -E 'src/.*\.js$|^index\.js$|package\.json$'; then
+          # Get the list of changed files
+          changed_files=$(git diff --name-only HEAD~1 2>/dev/null || echo "")
+
+          # Skip if only API.md or CHANGELOG.md were changed (auto-generated files)
+          if echo "$changed_files" | grep -v -E '^(API\.md|CHANGELOG\.md)$' | grep -E 'src/.*\.js$|^index\.js$|package\.json$'; then
             has_meaningful_changes=true
             echo "Found meaningful code changes"
           fi
