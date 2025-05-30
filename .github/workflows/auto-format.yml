@@ -47,7 +47,7 @@ jobs:
           fi
 
       - name: Run ESLint with auto-fix
-        run: npx eslint . --fix --format=github
+        run: npx eslint . --fix --format=stylish
         continue-on-error: true
 
       - name: Run Prettier
@@ -73,7 +73,7 @@ jobs:
             ## Auto-formatting and Security Changes
 
             This PR contains automatic changes made by:
-            - ESLint auto-fix
+            - ESLint auto-fix (using stylish formatter for compatibility)
             - Prettier formatting  
             - Security vulnerability fixes via `npm audit fix`
             - ESLint config format fixes for compatibility
@@ -95,6 +95,8 @@ jobs:
 
             ---
             *This PR was created automatically by the Auto Format workflow.*
+
+            **Note**: Using `stylish` formatter for ESLint compatibility with v7.x
           branch: auto-format-${{ github.run_number }}-${{ github.run_attempt }}
           delete-branch: true
           assignees: ${{ github.actor }}

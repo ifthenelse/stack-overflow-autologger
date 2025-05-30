@@ -18,6 +18,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -34,50 +35,200 @@ jobs:
           echo "" >> API.md
           echo "Auto-generated documentation for the Stack Overflow Autologger." >> API.md
           echo "" >> API.md
+          echo "Generated on: $(date '+%Y-%m-%d %H:%M:%S UTC')" >> API.md
+          echo "" >> API.md
+          echo "## Project Structure" >> API.md
+          echo "" >> API.md
+
+          # Document project structure
+          if [ -d "src" ]; then
+            echo "### Source Directory" >> API.md
+            echo "" >> API.md
+            echo "```" >> API.md
+            find src -type f -name "*.js" | sort >> API.md
+            echo "```" >> API.md
+            echo "" >> API.md
+          fi
+
           echo "## Modules" >> API.md
           echo "" >> API.md
 
-          # Document each module
+          # Document each module - handle different structures
+          found_modules=false
+
+          # Check for src/*/index.js pattern
           for file in src/*/index.js; do
-            module_name=$(basename $(dirname $file))
-            echo "### $module_name" >> API.md
+            if [ -f "$file" ]; then
+              found_modules=true
+              module_name=$(basename $(dirname $file))
+              echo "### $module_name" >> API.md
+              echo "" >> API.md
+              echo "**Location**: \`$file\`" >> API.md
+              echo "" >> API.md
+              
+              # Extract function signatures
+              if grep -q "const.*=.*async\|function.*async\|export.*function" "$file"; then
+                echo "**Functions**:" >> API.md
+                echo "```javascript" >> API.md
+                grep -E "(const|export|async function).*=.*async.*=>|async function.*\(|export.*function.*\(" "$file" | head -5 >> API.md
+                echo "```" >> API.md
+                echo "" >> API.md
+              fi
+              
+              # Extract imports/dependencies
+              if grep -q "import\|require" "$file"; then
+                echo "**Dependencies**:" >> API.md
+                echo "```javascript" >> API.md
+                grep -E "^import.*from|^const.*require" "$file" | head -3 >> API.md
+                echo "```" >> API.md
+                echo "" >> API.md
+              fi
+            fi
+          done
+
+          # Check for direct src/*.js files
+          for file in src/*.js; do
+            if [ -f "$file" ] && [ "$file" != "src/index.js" ]; then
+              found_modules=true
+              module_name=$(basename "$file" .js)
+              echo "### $module_name" >> API.md
+              echo "" >> API.md
+              echo "**Location**: \`$file\`" >> API.md
+              echo "" >> API.md
+              
+              # Extract function signatures
+              if grep -q "const.*=.*async\|function.*async\|export.*function" "$file"; then
+                echo "**Functions**:" >> API.md
+                echo "```javascript" >> API.md
+                grep -E "(const|export|async function).*=.*async.*=>|async function.*\(|export.*function.*\(" "$file" | head -3 >> API.md
+                echo "```" >> API.md
+                echo "" >> API.md
+              fi
+            fi
+          done
+
+          # Check main index.js
+          if [ -f "index.js" ]; then
+            echo "### Main Entry Point" >> API.md
             echo "" >> API.md
-            echo "Location: \`$file\`" >> API.md
+            echo "**Location**: \`index.js\`" >> API.md
             echo "" >> API.md
             
-            # Extract function signature if it exists
-            if grep -q "const.*=.*async" "$file"; then
+            if grep -q "const.*=.*async\|function.*async\|export.*function" "index.js"; then
+              echo "**Functions**:" >> API.md
               echo "```javascript" >> API.md
-              grep -E "(const|export).*=.*async.*=>|function.*\(" "$file" | head -1 >> API.md
+              grep -E "(const|export|async function).*=.*async.*=>|async function.*\(|export.*function.*\(" "index.js" | head -3 >> API.md
               echo "```" >> API.md
               echo "" >> API.md
             fi
-          done
+          fi
+
+          if [ "$found_modules" = false ]; then
+            echo "No modules found in the expected locations." >> API.md
+            echo "" >> API.md
+            echo "**Available files**:" >> API.md
+            echo "```" >> API.md
+            find . -name "*.js" -not -path "./node_modules/*" -not -path "./.git/*" | sort >> API.md
+            echo "```" >> API.md
+          fi
 
       - name: Update package info in README
         run: |
           # Update version badge in README if it exists
           if [ -f README.md ] && [ -f package.json ]; then
             version=$(node -p "require('./package.json').version")
+            
+            # Update or add version badge
             if grep -q "!\[Version\]" README.md; then
-              sed -i "s|!\[Version\](.*)|![Version](https://img.shields.io/badge/version-$version-blue)|" README.md
+              sed -i "s|!\[Version\]([^)]*)|![Version](https://img.shields.io/badge/version-$version-blue)|" README.md
+            elif grep -q "# " README.md; then
+              # Add version badge after the first heading
+              sed -i "0,/^# /{s/\(^# .*\)/\1\n\n![Version](https://img.shields.io/badge\/version-$version-blue)/}" README.md
+            fi
+            
+            # Update last updated timestamp
+            if grep -q "Last updated:" README.md; then
+              sed -i "s/Last updated:.*/Last updated: $(date '+%Y-%m-%d')/" README.md
+            else
+              echo "" >> README.md
+              echo "---" >> README.md
+              echo "*Last updated: $(date '+%Y-%m-%d')*" >> README.md
             fi
           fi
 
-      - name: Check for changes
-        id: verify-changed-files
+      - name: Generate CHANGELOG entry
         run: |
-          if [ -n "$(git status --porcelain)" ]; then
-            echo "changed=true" >> $GITHUB_OUTPUT
-          else
-            echo "changed=false" >> $GITHUB_OUTPUT
+          if [ ! -f CHANGELOG.md ]; then
+            echo "# Changelog" > CHANGELOG.md
+            echo "" >> CHANGELOG.md
+            echo "All notable changes to this project will be documented in this file." >> CHANGELOG.md
+            echo "" >> CHANGELOG.md
           fi
 
-      - name: Commit documentation updates
-        if: steps.verify-changed-files.outputs.changed == 'true'
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git add .
-          git commit -m "docs: update auto-generated documentation [skip ci]"
-          git push
+          # Check if we need to add today's entry
+          today=$(date '+%Y-%m-%d')
+          if ! grep -q "## \[$today\]" CHANGELOG.md; then
+            # Create temp file with new entry
+            echo "# Changelog" > CHANGELOG_new.md
+            echo "" >> CHANGELOG_new.md
+            echo "All notable changes to this project will be documented in this file." >> CHANGELOG_new.md
+            echo "" >> CHANGELOG_new.md
+            echo "## [$today]" >> CHANGELOG_new.md
+            echo "" >> CHANGELOG_new.md
+            echo "### Changed" >> CHANGELOG_new.md
+            echo "- Updated auto-generated documentation" >> CHANGELOG_new.md
+            echo "- Refreshed API documentation" >> CHANGELOG_new.md
+            echo "" >> CHANGELOG_new.md
+            
+            # Append existing changelog (skip header)
+            if [ -f CHANGELOG.md ]; then
+              tail -n +4 CHANGELOG.md >> CHANGELOG_new.md
+            fi
+            
+            mv CHANGELOG_new.md CHANGELOG.md
+          fi
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "docs: update auto-generated documentation"
+          title: "📚 Update documentation"
+          body: |
+            ## Documentation Updates
+
+            This PR contains automatic documentation updates:
+
+            ### Changes Made:
+            - ✅ Refreshed API documentation (`API.md`)
+            - ✅ Updated version badge in README
+            - ✅ Updated last modified timestamp
+            - ✅ Added changelog entry
+
+            ### Files Updated:
+            - `API.md` - Auto-generated API documentation
+            - `README.md` - Version badge and timestamp updates  
+            - `CHANGELOG.md` - New changelog entry
+
+            ### Generated Content:
+            - Project structure overview
+            - Module documentation with function signatures
+            - Dependency information
+            - Current version information
+
+            ### What to do:
+            - ✅ Review the documentation updates
+            - ✅ Merge if the content looks accurate
+            - ❌ Close if updates are not needed
+
+            ---
+            *This PR was created automatically by the Documentation workflow.*
+
+            > **Note**: This workflow runs when source code or documentation files change on the main branch.
+          branch: docs-update-${{ github.run_number }}
+          delete-branch: true
+          assignees: ${{ github.actor }}
+          labels: |
+            documentation
+            automated
+            enhancement

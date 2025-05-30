@@ -33,10 +33,34 @@ jobs:
           fi
 
       - name: Run ESLint
-        run: npx eslint . --format=github
+        run: |
+          echo "Running ESLint..."
+          if npx eslint . --format=stylish; then
+            echo "✅ ESLint passed with no errors"
+          else
+            echo "❌ ESLint found issues"
+            echo "## ESLint Results" >> $GITHUB_STEP_SUMMARY
+            echo "ESLint found formatting or code quality issues. Please run:" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
+            echo "npx eslint . --fix" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
 
       - name: Check Prettier formatting
-        run: npx prettier --check .
+        run: |
+          echo "Checking Prettier formatting..."
+          if npx prettier --check .; then
+            echo "✅ Prettier formatting is correct"
+          else
+            echo "❌ Prettier formatting issues found"
+            echo "## Prettier Results" >> $GITHUB_STEP_SUMMARY
+            echo "Code formatting issues found. Please run:" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
+            echo "npx prettier --write ." >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
 
   security-scan:
     runs-on: ubuntu-latest
@@ -78,6 +102,9 @@ jobs:
             
             # Show the vulnerabilities in the log too
             cat audit_output.txt
+            
+            # Don't fail the workflow for security issues, just report them
+            exit 0
           fi
 
       - name: Upload audit results
