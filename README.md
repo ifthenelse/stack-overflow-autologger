@@ -14,14 +14,14 @@ Script that opens a login session to stack overflow, simulates user navigation v
 3. Set other options in the .env file (options TBD)
 
 4. Run the code
-    ```shell script
-    npm install
-    npm run start
-    ```
-    or
-    ```shell script
-    yarn
-    yarn start
-    ```
+   ```shell script
+   npm install
+   npm run start
+   ```
+   or
+   ```shell script
+   yarn
+   yarn start
+   ```
 
 That's it!

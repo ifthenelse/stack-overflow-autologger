@@ -4,10 +4,4 @@ import visitPage from './visitPage/index.js';
 import getCommunitiesList from './getCommunitiesList/index.js';
 import scrapeCommunity from './scrapeCommunity/index.js';
 
-export {
-    initSession,
-    login,
-    visitPage,
-    getCommunitiesList,
-    scrapeCommunity
-};
+export { initSession, login, visitPage, getCommunitiesList, scrapeCommunity };

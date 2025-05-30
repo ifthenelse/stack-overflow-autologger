@@ -1,88 +1,88 @@
 {
-    "version": "2.0.0",
-    "tasks": [
-        {
-            "label": "npm: install",
-            "type": "npm",
-            "script": "install",
-            "group": "build",
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": false,
-                "panel": "shared"
-            },
-            "problemMatcher": []
-        },
-        {
-            "label": "npm: start",
-            "type": "npm",
-            "script": "start",
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            },
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": false,
-                "panel": "shared"
-            },
-            "problemMatcher": []
-        },
-        {
-            "label": "ESLint: Fix All",
-            "type": "shell",
-            "command": "npx eslint . --fix",
-            "group": "build",
-            "presentation": {
-                "echo": true,
-                "reveal": "silent",
-                "focus": false,
-                "panel": "shared"
-            },
-            "problemMatcher": "$eslint-stylish"
-        },
-        {
-            "label": "Prettier: Format All",
-            "type": "shell",
-            "command": "npx prettier --write .",
-            "group": "build",
-            "presentation": {
-                "echo": true,
-                "reveal": "silent",
-                "focus": false,
-                "panel": "shared"
-            },
-            "problemMatcher": []
-        },
-        {
-            "label": "Setup Environment",
-            "type": "shell",
-            "command": "cp .env.default .env",
-            "group": "build",
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": false,
-                "panel": "shared"
-            },
-            "problemMatcher": [],
-            "detail": "Copy .env.default to .env for initial setup"
-        },
-        {
-            "label": "Clean Install",
-            "type": "shell",
-            "command": "rm -rf node_modules package-lock.json && npm install",
-            "group": "build",
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": false,
-                "panel": "shared"
-            },
-            "problemMatcher": [],
-            "detail": "Remove node_modules and reinstall dependencies"
-        }
-    ]
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "npm: install",
+      "type": "npm",
+      "script": "install",
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "npm: start",
+      "type": "npm",
+      "script": "start",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "ESLint: Fix All",
+      "type": "shell",
+      "command": "npx eslint . --fix",
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "silent",
+        "focus": false,
+        "panel": "shared"
+      },
+      "problemMatcher": "$eslint-stylish"
+    },
+    {
+      "label": "Prettier: Format All",
+      "type": "shell",
+      "command": "npx prettier --write .",
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "silent",
+        "focus": false,
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Setup Environment",
+      "type": "shell",
+      "command": "cp .env.default .env",
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "problemMatcher": [],
+      "detail": "Copy .env.default to .env for initial setup"
+    },
+    {
+      "label": "Clean Install",
+      "type": "shell",
+      "command": "rm -rf node_modules package-lock.json && npm install",
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "problemMatcher": [],
+      "detail": "Remove node_modules and reinstall dependencies"
+    }
+  ]
 }

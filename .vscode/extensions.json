@@ -1,20 +1,17 @@
 {
-    "recommendations": [
-        "esbenp.prettier-vscode",
-        "dbaeumer.vscode-eslint",
-        "ms-vscode.vscode-json",
-        "bradlc.vscode-tailwindcss",
-        "ms-vscode.js-debug",
-        "christian-kohler.path-intellisense",
-        "ms-vscode.vscode-typescript-next",
-        "usernamehw.errorlens",
-        "gruntfuggly.todo-tree",
-        "mikestead.dotenv",
-        "ms-vscode.extension-test-runner",
-        "ritwickdey.liveserver"
-    ],
-    "unwantedRecommendations": [
-        "hookyqr.beautify",
-        "ms-vscode.vscode-typescript"
-    ]
+  "recommendations": [
+    "esbenp.prettier-vscode",
+    "dbaeumer.vscode-eslint",
+    "ms-vscode.vscode-json",
+    "bradlc.vscode-tailwindcss",
+    "ms-vscode.js-debug",
+    "christian-kohler.path-intellisense",
+    "ms-vscode.vscode-typescript-next",
+    "usernamehw.errorlens",
+    "gruntfuggly.todo-tree",
+    "mikestead.dotenv",
+    "ms-vscode.extension-test-runner",
+    "ritwickdey.liveserver"
+  ],
+  "unwantedRecommendations": ["hookyqr.beautify", "ms-vscode.vscode-typescript"]
 }

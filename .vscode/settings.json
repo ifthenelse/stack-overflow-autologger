@@ -1,48 +1,43 @@
 {
-    "editor.defaultFormatter": "esbenp.prettier-vscode",
-    "editor.formatOnSave": true,
-    "editor.formatOnPaste": true,
-    "editor.codeActionsOnSave": {
-        "source.fixAll.eslint": "explicit"
-    },
-    "eslint.validate": [
-        "javascript",
-        "javascriptreact"
-    ],
-    "eslint.workingDirectories": [
-        "./"
-    ],
-    "prettier.requireConfig": true,
-    "javascript.preferences.importModuleSpecifier": "relative",
-    "javascript.suggest.autoImports": true,
-    "javascript.updateImportsOnFileMove.enabled": "always",
-    "files.associations": {
-        ".env.default": "dotenv",
-        ".env": "dotenv"
-    },
-    "emmet.includeLanguages": {
-        "javascript": "javascriptreact"
-    },
-    "debug.node.autoAttach": "on",
-    "terminal.integrated.env.osx": {
-        "NODE_OPTIONS": "--experimental-modules"
-    },
-    "terminal.integrated.env.linux": {
-        "NODE_OPTIONS": "--experimental-modules"
-    },
-    "terminal.integrated.env.windows": {
-        "NODE_OPTIONS": "--experimental-modules"
-    },
-    "files.exclude": {
-        "**/node_modules": true,
-        "**/.git": true,
-        "**/.DS_Store": true,
-        "**/Thumbs.db": true,
-        "**/*.log": true
-    },
-    "search.exclude": {
-        "**/node_modules": true,
-        "**/package-lock.json": true,
-        "**/yarn.lock": true
-    }
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
+  "editor.formatOnPaste": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  "eslint.validate": ["javascript", "javascriptreact"],
+  "eslint.workingDirectories": ["./"],
+  "prettier.requireConfig": true,
+  "javascript.preferences.importModuleSpecifier": "relative",
+  "javascript.suggest.autoImports": true,
+  "javascript.updateImportsOnFileMove.enabled": "always",
+  "files.associations": {
+    ".env.default": "dotenv",
+    ".env": "dotenv"
+  },
+  "emmet.includeLanguages": {
+    "javascript": "javascriptreact"
+  },
+  "debug.node.autoAttach": "on",
+  "terminal.integrated.env.osx": {
+    "NODE_OPTIONS": "--experimental-modules"
+  },
+  "terminal.integrated.env.linux": {
+    "NODE_OPTIONS": "--experimental-modules"
+  },
+  "terminal.integrated.env.windows": {
+    "NODE_OPTIONS": "--experimental-modules"
+  },
+  "files.exclude": {
+    "**/node_modules": true,
+    "**/.git": true,
+    "**/.DS_Store": true,
+    "**/Thumbs.db": true,
+    "**/*.log": true
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/package-lock.json": true,
+    "**/yarn.lock": true
+  }
 }
