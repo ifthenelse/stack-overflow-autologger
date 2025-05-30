@@ -11,6 +11,8 @@ on:
 
 jobs:
   update-docs:
+    # Prevent infinite loops from docs PRs
+    if: ${{ !startsWith(github.head_ref, 'docs-update-') }}
     runs-on: ubuntu-latest
 
     steps:
@@ -134,8 +136,35 @@ jobs:
 
       - name: Update package info in README
         run: |
-          # Only update timestamp if there are other changes
-          if git diff --name-only | grep -v README.md | grep -q .; then
+          # Check if there are meaningful changes (not just timestamp)
+          has_changes=false
+
+          # Check for changes in source files, package.json, or new content
+          if git diff --name-only HEAD~1 2>/dev/null | grep -E '\.(js|json)$|src/' | grep -v package-lock.json; then
+            has_changes=true
+          fi
+
+          # Or if this is the first run (no previous commit to compare)
+          if ! git rev-parse HEAD~1 >/dev/null 2>&1; then
+            has_changes=true
+          fi
+
+          # Only update timestamp if there are meaningful changes
+          if [ "$has_changes" = "true" ]; then
+            if [ -f package.json ]; then
+              version=$(node -p "require('./package.json').version")
+              
+              # Update or add version badge
+              if grep -q "!\[Version\]" README.md; then
+                # Use pipe as delimiter to avoid URL slash conflicts
+                sed -i "s|!\[Version\]([^)]*)|![Version](https://img.shields.io/badge/version-$version-blue)|g" README.md
+              elif grep -q "^# " README.md; then
+                # Add version badge after the first heading
+                sed -i "0,/^# /{s/\(^# .*\)/\1\n\n![Version](https:\/\/img.shields.io\/badge\/version-$version-blue)/}" README.md
+              fi
+            fi
+            
+            # Update last updated timestamp
             if grep -q "Last updated:" README.md; then
               sed -i "s/Last updated:.*/Last updated: $(date '+%Y-%m-%d')/" README.md
             else
@@ -147,41 +176,68 @@ jobs:
 
       - name: Generate CHANGELOG entry
         run: |
-          if [ ! -f CHANGELOG.md ]; then
-            echo "# Changelog" > CHANGELOG.md
-            echo "" >> CHANGELOG.md
-            echo "All notable changes to this project will be documented in this file." >> CHANGELOG.md
-            echo "" >> CHANGELOG.md
+          # Only generate changelog entry if there are meaningful changes
+          has_changes=false
+
+          if git diff --name-only HEAD~1 2>/dev/null | grep -E '\.(js|json)$|src/' | grep -v package-lock.json; then
+            has_changes=true
           fi
 
-          # Check if we need to add today's entry
-          today=$(date '+%Y-%m-%d')
-          if ! grep -q "## \[$today\]" CHANGELOG.md; then
-            # Create temp file with new entry
-            echo "# Changelog" > CHANGELOG_new.md
-            echo "" >> CHANGELOG_new.md
-            echo "All notable changes to this project will be documented in this file." >> CHANGELOG_new.md
-            echo "" >> CHANGELOG_new.md
-            echo "## [$today]" >> CHANGELOG_new.md
-            echo "" >> CHANGELOG_new.md
-            echo "### Changed" >> CHANGELOG_new.md
-            echo "- Updated auto-generated documentation" >> CHANGELOG_new.md
-            echo "- Refreshed API documentation" >> CHANGELOG_new.md
-            echo "" >> CHANGELOG_new.md
-            
-            # Append existing changelog (skip header)
-            if [ -f CHANGELOG.md ]; then
-              tail -n +4 CHANGELOG.md >> CHANGELOG_new.md
-            fi
-            
-            mv CHANGELOG_new.md CHANGELOG.md
+          if ! git rev-parse HEAD~1 >/dev/null 2>&1; then
+            has_changes=true
           fi
+
+          if [ "$has_changes" = "true" ]; then
+            if [ ! -f CHANGELOG.md ]; then
+              echo "# Changelog" > CHANGELOG.md
+              echo "" >> CHANGELOG.md
+              echo "All notable changes to this project will be documented in this file." >> CHANGELOG.md
+              echo "" >> CHANGELOG.md
+            fi
+
+            # Check if we need to add today's entry
+            today=$(date '+%Y-%m-%d')
+            if ! grep -q "## \[$today\]" CHANGELOG.md; then
+              # Create temp file with new entry
+              echo "# Changelog" > CHANGELOG_new.md
+              echo "" >> CHANGELOG_new.md
+              echo "All notable changes to this project will be documented in this file." >> CHANGELOG_new.md
+              echo "" >> CHANGELOG_new.md
+              echo "## [$today]" >> CHANGELOG_new.md
+              echo "" >> CHANGELOG_new.md
+              echo "### Changed" >> CHANGELOG_new.md
+              echo "" >> CHANGELOG_new.md
+              echo "- Updated auto-generated documentation" >> CHANGELOG_new.md
+              echo "- Refreshed API documentation" >> CHANGELOG_new.md
+              echo "" >> CHANGELOG_new.md
+              
+              # Append existing changelog (skip header)
+              if [ -f CHANGELOG.md ]; then
+                tail -n +4 CHANGELOG.md >> CHANGELOG_new.md
+              fi
+              
+              mv CHANGELOG_new.md CHANGELOG.md
+            fi
+          fi
+
+      - name: Format generated documentation
+        run: |
+          echo "Formatting generated documentation files..."
+          # Format markdown files with Prettier
+          npx prettier --write "*.md"
+          echo "Documentation files formatted"
+
+      - name: Run ESLint on all files
+        run: |
+          echo "Running ESLint auto-fix on all files..."
+          npx eslint . --fix --format=stylish || true
+          echo "ESLint auto-fix completed"
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: 'docs: update auto-generated documentation'
+          commit-message: 'docs: update auto-generated documentation [skip ci]'
           title: '📚 Update documentation'
           body: |
             ## Documentation Updates
@@ -190,20 +246,24 @@ jobs:
 
             ### Changes Made:
             - ✅ Refreshed API documentation (`API.md`)
-            - ✅ Updated version badge in README
-            - ✅ Updated last modified timestamp
-            - ✅ Added changelog entry
+            - ✅ Updated version badge in README (if meaningful changes)
+            - ✅ Updated last modified timestamp (if meaningful changes)
+            - ✅ Added changelog entry (if meaningful changes)
+            - ✅ Formatted all documentation with Prettier
+            - ✅ Applied ESLint fixes
 
             ### Files Updated:
             - `API.md` - Auto-generated API documentation
-            - `README.md` - Version badge and timestamp updates  
-            - `CHANGELOG.md` - New changelog entry
+            - `README.md` - Version badge and timestamp updates (if needed)
+            - `CHANGELOG.md` - New changelog entry (if needed)
 
             ### Generated Content:
             - Project structure overview
             - Module documentation with function signatures
             - Dependency information
             - Current version information
+
+            **Note**: This PR includes `[skip ci]` to prevent infinite workflow loops.
 
             ### What to do:
             - ✅ Review the documentation updates
@@ -213,7 +273,7 @@ jobs:
             ---
             *This PR was created automatically by the Documentation workflow.*
 
-            > **Note**: This workflow runs when source code or documentation files change on the main branch.
+            > **Note**: This workflow only updates timestamps and changelogs when there are meaningful code changes.
           branch: docs-update-${{ github.run_number }}
           delete-branch: true
           assignees: ${{ github.actor }}

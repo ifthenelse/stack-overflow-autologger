@@ -8,8 +8,6 @@ Generated on: 2025-05-30 21:35:39 UTC
 
 ### Source Directory
 
-
-
 ## Modules
 
 ### getCommunitiesList
@@ -18,16 +16,13 @@ Generated on: 2025-05-30 21:35:39 UTC
 
 **Functions**:
 
-
 ### initSession
 
 **Location**: `src/initSession/index.js`
 
 **Functions**:
 
-
 **Dependencies**:
-
 
 ### login
 
@@ -35,13 +30,11 @@ Generated on: 2025-05-30 21:35:39 UTC
 
 **Functions**:
 
-
 ### scrapeCommunity
 
 **Location**: `src/scrapeCommunity/index.js`
 
 **Functions**:
-
 
 ### visitPage
 
@@ -49,11 +42,8 @@ Generated on: 2025-05-30 21:35:39 UTC
 
 **Functions**:
 
-
 ### Main Entry Point
 
 **Location**: `index.js`
 
 **Functions**:
-
-
