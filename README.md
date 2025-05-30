@@ -3,6 +3,8 @@ Mind that stack exchange and stack overflow have a strict policy against bots. A
 
 # stack overflow autologger
 
+![Version](https://img.shields.io/badge/version-1.0.0-blue)
+
 Script that opens a login session to stack overflow, simulates user navigation via browser and then logs out.
 
 ## Configuration and installation
@@ -25,3 +27,6 @@ Script that opens a login session to stack overflow, simulates user navigation v
    ```
 
 That's it!
+
+---
+*Last updated: 2025-05-30*
