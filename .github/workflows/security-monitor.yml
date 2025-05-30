@@ -1,0 +1,152 @@
+name: Security Monitor
+
+on:
+  schedule:
+    - cron: "0 6 * * 1" # Weekly on Monday at 6 AM UTC
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "package*.json"
+
+jobs:
+  security-audit:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run comprehensive security audit
+        id: audit
+        run: |
+          echo "🔍 Running comprehensive security audit..."
+
+          # Create audit report
+          echo "# Security Audit Report - $(date)" > security_report.md
+          echo "" >> security_report.md
+
+          # Run audit for all levels
+          echo "## High and Critical Vulnerabilities" >> security_report.md
+          if npm audit --audit-level=high > high_vulns.txt 2>&1; then
+            echo "✅ No high or critical vulnerabilities found" >> security_report.md
+            echo "audit_high=clean" >> $GITHUB_OUTPUT
+          else
+            echo "❌ High/Critical vulnerabilities detected" >> security_report.md
+            echo "```" >> security_report.md
+            cat high_vulns.txt >> security_report.md
+            echo "```" >> security_report.md
+            echo "audit_high=vulnerabilities" >> $GITHUB_OUTPUT
+          fi
+
+          echo "" >> security_report.md
+          echo "## Moderate Vulnerabilities" >> security_report.md
+          if npm audit --audit-level=moderate > moderate_vulns.txt 2>&1; then
+            echo "✅ No moderate vulnerabilities found" >> security_report.md
+            echo "audit_moderate=clean" >> $GITHUB_OUTPUT
+          else
+            echo "⚠️ Moderate vulnerabilities detected" >> security_report.md
+            echo "```" >> security_report.md
+            cat moderate_vulns.txt >> security_report.md
+            echo "```" >> security_report.md
+            echo "audit_moderate=vulnerabilities" >> $GITHUB_OUTPUT
+          fi
+
+          echo "" >> security_report.md
+          echo "## Recommended Actions" >> security_report.md
+          echo "1. Run \`npm audit fix\` to automatically fix vulnerabilities" >> security_report.md
+          echo "2. Review the changes before committing" >> security_report.md
+          echo "3. For vulnerabilities that can't be auto-fixed, consider:" >> security_report.md
+          echo "   - Updating to newer versions manually" >> security_report.md
+          echo "   - Finding alternative packages" >> security_report.md
+          echo "   - Accepting the risk if it doesn't affect your use case" >> security_report.md
+
+      - name: Create security issue
+        if: steps.audit.outputs.audit_high == 'vulnerabilities'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const report = fs.readFileSync('security_report.md', 'utf8');
+
+            const issueTitle = `🚨 High/Critical Security Vulnerabilities Detected - ${new Date().toISOString().split('T')[0]}`;
+
+            // Check if a similar issue already exists
+            const existingIssues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: 'security,high-priority',
+              state: 'open'
+            });
+
+            if (existingIssues.data.length === 0) {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: issueTitle,
+                body: report + '\n\n---\n*This issue was created automatically by the Security Monitor workflow.*',
+                labels: ['security', 'high-priority', 'automated']
+              });
+              console.log('Created high-priority security issue');
+            } else {
+              console.log('High-priority security issue already exists');
+            }
+
+      - name: Upload security report
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-audit-report
+          path: |
+            security_report.md
+            high_vulns.txt
+            moderate_vulns.txt
+          retention-days: 90
+
+      - name: Comment on recent PRs if vulnerabilities found
+        if: steps.audit.outputs.audit_moderate == 'vulnerabilities'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const report = fs.readFileSync('security_report.md', 'utf8');
+
+            // Get recent PRs
+            const prs = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              sort: 'updated',
+              per_page: 5
+            });
+
+            for (const pr of prs.data) {
+              // Check if we already commented
+              const comments = await github.rest.issues.listComments({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pr.number
+              });
+              
+              const hasSecurityComment = comments.data.some(comment => 
+                comment.body.includes('Security Audit Report') && 
+                comment.user.type === 'Bot'
+              );
+              
+              if (!hasSecurityComment) {
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: pr.number,
+                  body: `## 🔒 Security Audit Report\n\n${report.substring(0, 1000)}...\n\n[View full report in workflow artifacts](${context.payload.repository.html_url}/actions/runs/${context.runId})`
+                });
+              }
+            }
