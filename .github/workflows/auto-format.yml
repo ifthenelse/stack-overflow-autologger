@@ -19,8 +19,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version-file: ".nvmrc"
-          cache: "npm"
+          node-version-file: '.nvmrc'
+          cache: 'npm'
 
       - name: Install dependencies
         run: npm ci
@@ -37,13 +37,19 @@ jobs:
           fi
         continue-on-error: true
 
-      - name: Check ESLint config format
+      - name: Fix config files format
         run: |
-          if [ -f .eslintrc.js ]; then
-            echo "Converting .eslintrc.js to .eslintrc.cjs for compatibility..."
-            mv .eslintrc.js .eslintrc.cjs
-            # Convert ES module syntax to CommonJS
-            sed -i 's/export default/module.exports =/' .eslintrc.cjs
+          # Fix Prettier config if it uses ES modules
+          if [ -f .prettierrc.js ] && grep -q "export default" .prettierrc.js; then
+            echo "Converting .prettierrc.js to .prettierrc.json for compatibility..."
+            echo '{
+              "semi": true,
+              "singleQuote": true,
+              "tabWidth": 2,
+              "useTabs": false
+            }' > .prettierrc.json
+            rm .prettierrc.js
+            echo "Prettier config converted to JSON format"
           fi
 
       - name: Run ESLint with auto-fix
@@ -67,41 +73,38 @@ jobs:
         uses: peter-evans/create-pull-request@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "style: auto-format code and fix security vulnerabilities"
-          title: "🤖 Auto-format code and security fixes"
+          commit-message: 'style: auto-format code and fix configuration compatibility'
+          title: '🤖 Auto-format code and fix configuration'
           body: |
-            ## Auto-formatting and Security Changes
+            ## Auto-formatting and Configuration Updates
 
             This PR contains automatic changes made by:
             - ESLint auto-fix (using stylish formatter for compatibility)
             - Prettier formatting  
             - Security vulnerability fixes via `npm audit fix`
-            - ESLint config format fixes for compatibility
+            - Configuration file format fixes for ESLint 7.x compatibility
 
             ### Files changed:
             - Code files reformatted for consistency
+            - Configuration files converted to compatible formats
             - Package files updated for security
-            - ESLint configuration updated for compatibility
 
-            ### Security fixes applied:
-            - `cross-spawn` vulnerability (ReDoS)
-            - `semver` vulnerability (ReDoS) 
-            - `word-wrap` vulnerability (ReDoS)
+            ### Configuration fixes:
+            - Converted `.prettierrc.js` to `.prettierrc.json` for compatibility
+            - Security vulnerability fixes applied
 
             ### What to do:
             - ✅ Review the changes
-            - ✅ Merge if formatting and security fixes look correct
+            - ✅ Merge if formatting and fixes look correct
             - ❌ Close if changes are not desired
 
             ---
             *This PR was created automatically by the Auto Format workflow.*
-
-            **Note**: Using `stylish` formatter for ESLint compatibility with v7.x
           branch: auto-format-${{ github.run_number }}-${{ github.run_attempt }}
           delete-branch: true
           assignees: ${{ github.actor }}
           labels: |
             automated
             formatting
-            security
+            configuration
             code-style
