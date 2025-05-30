@@ -134,23 +134,8 @@ jobs:
 
       - name: Update package info in README
         run: |
-          # Update version badge in README if it exists
-          if [ -f README.md ] && [ -f package.json ]; then
-            version=$(node -p "require('./package.json').version")
-            
-            # Escape special characters in version for sed
-            version_escaped=$(echo "$version" | sed 's/[[\.*^$()+?{|]/\\&/g')
-            
-            # Update or add version badge
-            if grep -q "!\[Version\]" README.md; then
-              # Use a different delimiter for sed to avoid issues with forward slashes
-              sed -i "s|!\[Version\]([^)]*)|![Version](https://img.shields.io/badge/version-${version_escaped}-blue)|" README.md
-            elif grep -q "^# " README.md; then
-              # Add version badge after the first heading
-              sed -i "0,/^# /{s/\(^# .*\)/\1\n\n![Version](https:\/\/img.shields.io\/badge\/version-${version_escaped}-blue)/}" README.md
-            fi
-            
-            # Update last updated timestamp
+          # Only update timestamp if there are other changes
+          if git diff --name-only | grep -v README.md | grep -q .; then
             if grep -q "Last updated:" README.md; then
               sed -i "s/Last updated:.*/Last updated: $(date '+%Y-%m-%d')/" README.md
             else
