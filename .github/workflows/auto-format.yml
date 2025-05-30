@@ -25,18 +25,6 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Fix security vulnerabilities
-        run: |
-          echo "Checking for security vulnerabilities..."
-          if ! npm audit --audit-level=moderate; then
-            echo "Security vulnerabilities found. Attempting to fix..."
-            npm audit fix
-            echo "Security fixes applied"
-          else
-            echo "No security vulnerabilities found"
-          fi
-        continue-on-error: true
-
       - name: Fix config files format
         run: |
           # Fix Prettier config if it uses ES modules
@@ -81,17 +69,14 @@ jobs:
             This PR contains automatic changes made by:
             - ESLint auto-fix (using stylish formatter for compatibility)
             - Prettier formatting  
-            - Security vulnerability fixes via `npm audit fix`
             - Configuration file format fixes for ESLint 7.x compatibility
 
             ### Files changed:
             - Code files reformatted for consistency
             - Configuration files converted to compatible formats
-            - Package files updated for security
 
             ### Configuration fixes:
             - Converted `.prettierrc.js` to `.prettierrc.json` for compatibility
-            - Security vulnerability fixes applied
 
             ### What to do:
             - ✅ Review the changes
