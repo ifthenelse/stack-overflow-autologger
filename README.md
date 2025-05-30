@@ -29,4 +29,4 @@ Script that opens a login session to stack overflow, simulates user navigation v
 That's it!
 
 ---
-*Last updated: 2025-05-30*
+*Last updated: 2025-05-30
